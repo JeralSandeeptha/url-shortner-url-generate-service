@@ -17,6 +17,24 @@ export const createURL: RequestHandler = async (req, res) => {
     status,
   }: IUrl = req.body;
   try {
+    const existedShortUrlLink = await UrlModel.find({
+      short_url: short_url,
+    });
+
+    if (!(existedShortUrlLink.length === 0)) {
+      logger.info("Create URL Service query was failed");
+      console.log("Create URL Service query was failed");
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json(
+          new SuccessResponse(
+            HTTP_STATUS.BAD_REQUEST,
+            "Create URL Service query was failed",
+            "Already exist the short URL. Please create anoter one"
+          )
+        );
+    }
+
     const newURL = await new UrlModel({
       campaignId: campaignId,
       clicks: clicks,
@@ -66,7 +84,7 @@ export const getSingleURLById: RequestHandler = async (req, res) => {
           new ErrorResponse(
             HTTP_STATUS.NOT_FOUND,
             "Get single URL by id query was failed",
-            "URL id not found",
+            "URL id not found"
           )
         );
     }
@@ -140,7 +158,7 @@ export const deleteURL: RequestHandler = async (req, res) => {
           new ErrorResponse(
             HTTP_STATUS.NOT_FOUND,
             "Delete url query was failed",
-            "URL id not found",
+            "URL id not found"
           )
         );
     }
@@ -155,7 +173,7 @@ export const deleteURL: RequestHandler = async (req, res) => {
         new SuccessResponse(
           HTTP_STATUS.NO_CONTENT,
           "Delete url query was success",
-          "URL deleted successfully",
+          "URL deleted successfully"
         )
       );
   } catch (error: any) {
@@ -186,15 +204,15 @@ export const updateURL: RequestHandler = async (req, res) => {
           new ErrorResponse(
             HTTP_STATUS.NOT_FOUND,
             "Update url query was failed",
-            "URL id not found",
+            "URL id not found"
           )
         );
     }
 
     const updatedURL = await UrlModel.findByIdAndUpdate(
-        req.params.urlId,
-        req.body,
-        { new: true }
+      req.params.urlId,
+      req.body,
+      { new: true }
     );
 
     logger.info("Update url query was success");
